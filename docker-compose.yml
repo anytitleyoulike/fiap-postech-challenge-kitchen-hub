@@ -1,0 +1,47 @@
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    volumes:
+      - ./src:/app/src
+      - ./migrations:/app/migrations
+    env_file:
+      - .env.template
+    depends_on:
+      - postgres
+    command: bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; uvicorn src.external.web.fastapi.app:app --host 0.0.0.0 --port 8000 --reload'
+    networks:
+      - app-network
+
+  migrations:
+    build: .
+    volumes:
+      - ./migrations:/app/migrations
+      - ./src:/app/src
+    env_file:
+      - .env.template
+    depends_on:
+      - postgres
+    command: bash -c "while !</dev/tcp/postgres/5432; do sleep 1; done; alembic -c migrations/alembic/alembic.ini upgrade head"
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:16.0-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - py_ports_adapters_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env.template
+    networks:
+      - app-network
+
+volumes:
+  py_ports_adapters_postgres_data:
+
+networks:
+  app-network:
