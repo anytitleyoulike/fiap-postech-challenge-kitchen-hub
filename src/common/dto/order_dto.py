@@ -17,7 +17,6 @@ class ProductDTO(BaseModel):
 
 
 class CreateOrderDTO(BaseModel):
-    user_id: int
     products: List[ProductDTO]
 
     model_config = {
