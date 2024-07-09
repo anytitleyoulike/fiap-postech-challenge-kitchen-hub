@@ -20,7 +20,6 @@ class OrderDetailEntity(BaseModel):
 
     id: Union[int, None] = None
     order_items: List[OrderItemEntity] = Field(default_factory=list)
-    # user_id: int
     total: float
     status: OrderStatus
     created_at: Union[datetime, None] = None
