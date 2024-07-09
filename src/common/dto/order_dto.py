@@ -48,7 +48,6 @@ class OrderStatusDTO(BaseModel):
     }
 
 
-
 class OrderResponseDTO(BaseModel):
     id: int
     created_at: datetime

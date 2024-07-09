@@ -3,12 +3,12 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - 8000:8000
+      - 8081:8081
     volumes:
       - ./src:/app/src
       - ./migrations:/app/migrations
     env_file:
-      - .env.template
+      - .env
     depends_on:
       - postgres
     command: bash -c 'while !</dev/tcp/postgres/5432; do sleep 1; done; uvicorn src.external.web.fastapi.app:app --host 0.0.0.0 --port 8000 --reload'
