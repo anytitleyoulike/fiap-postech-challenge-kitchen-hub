@@ -72,7 +72,6 @@ class OrderMapper:
         return OrderDetailEntity(
             id=order_detail_model.id,
             order_items=order_items,
-            # user_id=order_detail_model.user_id,
             total=round(order_detail_model.total, 2),
             status=OrderStatus(order_detail_model.status),
             created_at=order_detail_model.created_at
