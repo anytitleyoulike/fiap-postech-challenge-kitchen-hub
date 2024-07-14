@@ -1,9 +1,6 @@
-import unittest
 from datetime import datetime
 from unittest import TestCase
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 from src.common.dto.order_dto import OrderResponseDTO, CreateOrderDTO, ProductDTO
 from src.common.interfaces.order_repository import OrderRepositoryInterface
@@ -45,12 +42,15 @@ class TestOrderController(TestCase):
 
         self.order_repository_mock = Mock(spec=OrderRepositoryInterface)
         self.order_controller = OrderController(order_repository=self.order_repository_mock)
+        OrderUseCase.list_all = Mock(return_value=[self.mock_order_detail_entity])
+        OrderUseCase.create = Mock(return_value=self.mock_order_response_dto)
 
     def tearDown(self):
-        self.mock_order_detail_entity = None
+        OrderUseCase.list_all.reset_mock()
+        OrderUseCase.create.reset_mock()
+
 
     def test_list_orders_with_success(self):
-        OrderUseCase.list_all = Mock(return_value=[self.mock_order_detail_entity])
         result = self.order_controller.list_orders()
         OrderUseCase.list_all.assert_called_once_with(order_repository=self.order_repository_mock)
         assert result == [self.mock_order_response_dto]
@@ -60,7 +60,6 @@ class TestOrderController(TestCase):
             self.order_controller.update_order_status(1, "Wrong Status")
 
     def test_create_order_with_success(self):
-        OrderUseCase.create = Mock(return_value=self.mock_order_response_dto)
 
         result = self.order_controller.create_order(order=self.create_order_dto)
 
@@ -74,5 +73,5 @@ class TestOrderController(TestCase):
         OrderUseCase.order_status_update = Mock(return_value=self.mock_order_response_dto)
         result = self.order_controller.update_order_status(order_id=self.mock_order_response_dto.id,
                                                            order_status=order_status)
-
+        OrderUseCase.order_status_update.reset_mock()
         self.assertEqual(result.status, order_status)

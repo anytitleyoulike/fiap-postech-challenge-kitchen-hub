@@ -9,7 +9,7 @@ from src.external.database.sqlalchemy.models.order import (
 
 class OrderMapper:
     @staticmethod
-    def model_to_entity(order_detail_model):
+    def model_to_entity(order_detail_model: OrderDetailModel):
         order_items = [
             OrderItemEntity(
                 id=item.id,

@@ -62,7 +62,7 @@ class OrderRepository(OrderRepositoryInterface):
                     (OrderDetailModel.status == 'Em Preparação', 2),
                     (OrderDetailModel.status == 'Recebido', 3)
                 ),
-                OrderDetailModel.created_at.asc()).all()
+                OrderDetailModel.created_at.desc()).all()
             session.close()
             return [OrderMapper.model_to_entity_clean(order) for order in orders]
 

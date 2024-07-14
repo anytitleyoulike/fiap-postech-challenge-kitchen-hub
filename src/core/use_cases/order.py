@@ -7,6 +7,7 @@ from src.common.dto.order_dto import (
 
 from src.common.interfaces.order_repository import OrderRepositoryInterface
 from src.core.domain.entities.order import OrderDetailEntity, OrderItemEntity
+from src.core.domain.exceptions import OperationalException
 from src.core.domain.value_objects.order_status import OrderStatus
 
 
@@ -16,31 +17,29 @@ class OrderUseCase:
             order: CreateOrderDTO,
             order_repository: OrderRepositoryInterface,
     ) -> OrderResponseDTO:
-        try:
-            order_detail: OrderDetailEntity = OrderDetailEntity(
-                status=OrderStatus.RECEIVED
-            )
 
-            order_items: List[OrderItemEntity] = [
-                OrderItemEntity(sku=item.sku, quantity=item.quantity)
-                for item in order.products
-            ]
+        order_detail: OrderDetailEntity = OrderDetailEntity(
+            status=OrderStatus.RECEIVED
+        )
 
-            new_order = order_repository.create(order_detail, order_items)
-            if not new_order.id:
-                raise Exception("Error creating order")
+        order_items: List[OrderItemEntity] = [
+            OrderItemEntity(sku=item.sku, quantity=item.quantity)
+            for item in order.products
+        ]
 
-            return OrderResponseDTO(
-                id=new_order.id,
-                created_at=new_order.created_at,
-                status=new_order.status,
-                order_items=[
-                    OrderItemEntity(id=item.id, quantity=item.quantity, sku=item.sku)
-                    for item in new_order.order_items
-                ],
-            )
-        except Exception as error:
-            print(error)
+        new_order = order_repository.create(order_detail, order_items)
+        if not new_order.id:
+            raise OperationalException("Error creating order")
+
+        return OrderResponseDTO(
+            id=new_order.id,
+            created_at=new_order.created_at,
+            status=new_order.status,
+            order_items=[
+                OrderItemEntity(id=item.id, quantity=item.quantity, sku=item.sku)
+                for item in new_order.order_items
+            ],
+        )
 
     @staticmethod
     def list_all(
