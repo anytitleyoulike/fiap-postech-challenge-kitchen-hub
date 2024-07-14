@@ -2,7 +2,6 @@ from typing import List
 
 from src.common.dto.order_dto import CreateOrderDTO, OrderResponseDTO
 from src.common.interfaces.order_repository import OrderRepositoryInterface
-from src.common.interfaces.product_repository import ProductRepositoryInterface
 from src.core.domain.entities.order import OrderDetailEntity
 from src.core.domain.exceptions import NotFoundError
 from src.core.domain.value_objects.order_status import check_order_status
@@ -14,18 +13,14 @@ class OrderController:
     def __init__(
             self,
             order_repository: OrderRepositoryInterface,
-            product_repository: ProductRepositoryInterface,
     ) -> None:
         self.order_repository = order_repository
-        self.product_repository = product_repository
 
     def create_order(self, order: CreateOrderDTO) -> OrderResponseDTO:
         order_repository = self.order_repository
-        product_repository = self.product_repository
         return OrderUseCase.create(
             order=order,
             order_repository=order_repository,
-            product_repository=product_repository,
         )
 
     def list_orders(self) -> List[OrderResponseDTO]:

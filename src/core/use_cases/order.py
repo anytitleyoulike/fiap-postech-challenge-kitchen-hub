@@ -6,7 +6,6 @@ from src.common.dto.order_dto import (
 )
 
 from src.common.interfaces.order_repository import OrderRepositoryInterface
-from src.common.interfaces.product_repository import ProductRepositoryInterface
 from src.core.domain.entities.order import OrderDetailEntity, OrderItemEntity
 from src.core.domain.value_objects.order_status import OrderStatus
 
@@ -16,38 +15,32 @@ class OrderUseCase:
     def create(
             order: CreateOrderDTO,
             order_repository: OrderRepositoryInterface,
-            product_repository: ProductRepositoryInterface,
     ) -> OrderResponseDTO:
-        total: float = 0
+        try:
+            order_detail: OrderDetailEntity = OrderDetailEntity(
+                status=OrderStatus.RECEIVED
+            )
 
-        product_ids = [order_product.id for order_product in order.products]
-        products = product_repository.get_many_by_ids(product_ids)
+            order_items: List[OrderItemEntity] = [
+                OrderItemEntity(sku=item.sku, quantity=item.quantity)
+                for item in order.products
+            ]
 
-        for product, order_product in zip(products, order.products):
-            total += product.price * order_product.quantity
+            new_order = order_repository.create(order_detail, order_items)
+            if not new_order.id:
+                raise Exception("Error creating order")
 
-        order_detail: OrderDetailEntity = OrderDetailEntity(
-           total=total, status=OrderStatus.RECEIVED
-        )
-
-        order_items: List[OrderItemEntity] = [
-            OrderItemEntity(product_id=item.id, quantity=item.quantity)
-            for item in order.products
-        ]
-
-        new_order = order_repository.create(order_detail, order_items)
-        if not new_order.id:
-            raise Exception("Error creating order")
-
-        return OrderResponseDTO(
-            id=new_order.id,
-            created_at=new_order.created_at,
-            status=new_order.status,
-            order_items=[
-                OrderItemEntity(id=product.id, quantity=product.quantity, product=product.product)
-                for product in new_order.order_items
-            ],
-        )
+            return OrderResponseDTO(
+                id=new_order.id,
+                created_at=new_order.created_at,
+                status=new_order.status,
+                order_items=[
+                    OrderItemEntity(id=item.id, quantity=item.quantity, sku=item.sku)
+                    for item in new_order.order_items
+                ],
+            )
+        except Exception as error:
+            print(error)
 
     @staticmethod
     def list_all(

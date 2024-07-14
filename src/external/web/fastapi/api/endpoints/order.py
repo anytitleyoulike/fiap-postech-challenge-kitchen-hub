@@ -5,16 +5,13 @@ from fastapi import APIRouter
 from src.common.dto.order_dto import CreateOrderDTO, OrderResponseDTO, OrderStatusDTO
 from src.controller.order import OrderController
 from src.external.database.sqlalchemy.repositories.order import OrderRepository
-from src.external.database.sqlalchemy.repositories.product import (
-    ProductRepository,
-)
+
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
 order_repository = OrderRepository()
-product_repository = ProductRepository()
 order_controller = OrderController(
-    order_repository=order_repository, product_repository=product_repository
+    order_repository=order_repository
 )
 
 

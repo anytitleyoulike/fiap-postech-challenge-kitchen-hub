@@ -26,7 +26,6 @@ class OrderRepository(OrderRepositoryInterface):
 
             with use_database_session() as session:
                 order_detail_model = OrderDetailModel(
-                    total=order_detail.total,
                     updated_at=datetime.now(),
                     status=str(order_detail.status),
                 )
@@ -40,7 +39,7 @@ class OrderRepository(OrderRepositoryInterface):
                 order_items_models = [
                     OrderItemModel(
                         order_id=order_id,
-                        product_id=item.product_id,
+                        sku=item.sku,
                         quantity=item.quantity,
                         updated_at=datetime.now(),
                     )
