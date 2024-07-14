@@ -17,6 +17,7 @@ from src.core.use_cases.order import OrderUseCase
 class TestOrderController(TestCase):
 
     def setUp(self):
+        self.date_now = datetime(2024, 7, 14, 0, 53, 35, 158494)
         self.create_order_dto = CreateOrderDTO(
             products=[ProductDTO(
                 sku="Mock_SKU_1",
@@ -31,8 +32,8 @@ class TestOrderController(TestCase):
         self.mock_order_detail_entity = OrderDetailEntity(
             id=1,
             order_items=[self.mock_order_item_entity],
-            status=OrderStatus("Em Preparação"),
-            created_at=datetime.now()
+            status=OrderStatus("Recebido"),
+            created_at=self.date_now
         )
 
         self.mock_order_response_dto = OrderResponseDTO(
@@ -44,6 +45,9 @@ class TestOrderController(TestCase):
 
         self.order_repository_mock = Mock(spec=OrderRepositoryInterface)
         self.order_controller = OrderController(order_repository=self.order_repository_mock)
+
+    def tearDown(self):
+        self.mock_order_detail_entity = None
 
     def test_list_orders_with_success(self):
         OrderUseCase.list_all = Mock(return_value=[self.mock_order_detail_entity])

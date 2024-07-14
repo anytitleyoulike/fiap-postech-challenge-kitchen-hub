@@ -27,7 +27,7 @@ class OrderController:
         orders = OrderUseCase.list_all(order_repository=self.order_repository)
         return [OrderMapper.entity_to_order_response_dto(order) for order in orders]
 
-    def update_order_status(self, order_id: int, order_status: str) -> OrderDetailEntity:
+    def update_order_status(self, order_id: int, order_status: str) -> OrderResponseDTO:
 
         if not check_order_status(order_status):
             raise NotFoundError("Order status invalid")
