@@ -5,7 +5,6 @@ from sqlalchemy import engine_from_config, pool
 
 from src.config import get_config
 from src.external.database.sqlalchemy.models import order  # noqa
-from src.external.database.sqlalchemy.models import product  # noqa
 from src.external.database.sqlalchemy.orm import Base
 
 app_config = get_config()
