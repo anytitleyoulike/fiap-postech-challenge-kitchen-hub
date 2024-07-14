@@ -53,5 +53,12 @@ class OrderUseCase:
             order_repository: OrderRepositoryInterface,
             order_id: int,
             order_status
-    ) -> OrderDetailEntity:
-        return order_repository.update_order_status(order_id, order_status)
+    ) -> OrderResponseDTO:
+        updated_order = order_repository.update_order_status(order_id, order_status)
+
+        return OrderResponseDTO(
+            id=updated_order.id,
+            status=updated_order.status,
+            order_items=updated_order.order_items,
+            created_at=updated_order.created_at
+        )

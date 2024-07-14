@@ -1,50 +1,35 @@
 import unittest
 from datetime import datetime
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.dto.order_dto import OrderResponseDTO
+from src.common.dto.order_dto import OrderResponseDTO, CreateOrderDTO, ProductDTO
 from src.common.interfaces.order_repository import OrderRepositoryInterface
-from src.common.interfaces.product_repository import ProductRepositoryInterface
 from src.controller.order import OrderController
 from src.core.domain.entities.order import OrderItemEntity, OrderDetailEntity
-from src.core.domain.entities.product import ProductEntity
+from src.core.domain.exceptions import NotFoundError
 from src.core.domain.value_objects.order_status import OrderStatus
 from src.core.use_cases.order import OrderUseCase
-
-
-# def mock_order_detail_entity(mock_order_item_entity) -> OrderDetailEntity:
-#     return OrderDetailEntity(
-#         id=1,
-#         total=10,
-#         order_items=[mock_order_item_entity],
-#         status=OrderStatus("Em Preparação"),
-#         created_at=datetime.now()
-#     )
-#
-#
-# @pytest.fixture
-# def mock_order_response_dto(mock_order_item_entity):
-#     return OrderResponseDTO(id=1,
-#                             status=OrderStatus("EM PREPARAÇÃO"),
-#                             created_at=datetime.now(),
-#                             order_items=[mock_order_item_entity]
-#                             )
 
 
 class TestOrderController(TestCase):
 
     def setUp(self):
+        self.create_order_dto = CreateOrderDTO(
+            products=[ProductDTO(
+                sku="Mock_SKU_1",
+                quantity=1
+            )]
+        )
         self.mock_order_item_entity = OrderItemEntity(
-            product=ProductEntity(name="test product 1", category="test"),
+            sku="Mock_SKU_1",
             quantity=1
         )
 
         self.mock_order_detail_entity = OrderDetailEntity(
             id=1,
-            total=10,
             order_items=[self.mock_order_item_entity],
             status=OrderStatus("Em Preparação"),
             created_at=datetime.now()
@@ -58,12 +43,32 @@ class TestOrderController(TestCase):
         )
 
         self.order_repository_mock = Mock(spec=OrderRepositoryInterface)
-        self.product_repository_mock = Mock(spec=ProductRepositoryInterface)
-        self.order_controller = OrderController(order_repository=self.order_repository_mock,
-                                                product_repository=self.product_repository_mock)
+        self.order_controller = OrderController(order_repository=self.order_repository_mock)
 
     def test_list_orders_with_success(self):
         OrderUseCase.list_all = Mock(return_value=[self.mock_order_detail_entity])
         result = self.order_controller.list_orders()
         OrderUseCase.list_all.assert_called_once_with(order_repository=self.order_repository_mock)
         assert result == [self.mock_order_response_dto]
+
+    def test_update_order_with_wrong_status(self):
+        with self.assertRaises(NotFoundError):
+            self.order_controller.update_order_status(1, "Wrong Status")
+
+    def test_create_order_with_success(self):
+        OrderUseCase.create = Mock(return_value=self.mock_order_response_dto)
+
+        result = self.order_controller.create_order(order=self.create_order_dto)
+
+        OrderUseCase.create.assert_called_once_with(order=self.create_order_dto,
+                                                    order_repository=self.order_repository_mock)
+        self.assertEqual(result, self.mock_order_response_dto)
+
+    def test_update_order_status_with_success(self):
+        order_status = OrderStatus.DOING.value
+        self.mock_order_response_dto.status = order_status
+        OrderUseCase.order_status_update = Mock(return_value=self.mock_order_response_dto)
+        result = self.order_controller.update_order_status(order_id=self.mock_order_response_dto.id,
+                                                           order_status=order_status)
+
+        self.assertEqual(result.status, order_status)
