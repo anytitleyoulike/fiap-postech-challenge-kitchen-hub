@@ -27,3 +27,37 @@ COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt --no-cache-dir --upgrade -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+FROM python:3.9-slim-bookworm
+
+# create the app user
+RUN addgroup --system app && adduser --system --group app
+
+# Virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+
+# psycopg2 dependencies
+RUN apt-get update \
+    && apt-get install -y libpq-dev
+
+COPY --from=builder /opt/venv /opt/venv
+
+# Activate virtual environment
+ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
+
+WORKDIR /app
+
+COPY ./src /app/src
+COPY ./migrations /app/migrations
+
+# chown all the files to the app user
+RUN chown -R app:app /app/
+
+USER app
+
+CMD ["uvicorn", "src.external.web.fastapi.app:app", "--host", "0.0.0.0", "--port", "8081"]
