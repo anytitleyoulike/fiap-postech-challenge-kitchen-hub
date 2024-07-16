@@ -8,11 +8,11 @@ from src.core.domain.value_objects.order_status import OrderStatus
 
 
 class ProductDTO(BaseModel):
-    id: int
+    sku: str
     quantity: int
 
     model_config = {
-        "json_schema_extra": {"examples": [{"id": 1, "quantity": 10}]}
+        "json_schema_extra": {"examples": [{"sku": 1, "quantity": 1}]}
     }
 
 
@@ -24,8 +24,8 @@ class CreateOrderDTO(BaseModel):
             "examples": [
                 {
                     "products": [
-                        {"id": 1, "quantity": 1},
-                        {"id": 2, "quantity": 1},
+                        {"sku": "abc123", "quantity": 1},
+                        {"sku": "abc321", "quantity": 1}
                     ],
                 }
             ]
