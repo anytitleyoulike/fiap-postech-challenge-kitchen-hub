@@ -8,7 +8,7 @@ from src.core.domain.value_objects.order_status import OrderStatus
 
 class OrderItemEntity(BaseModel):
     id: Union[int, None] = None
-    sku: str
+    sku: int
     quantity: int
 
 
