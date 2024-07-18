@@ -17,12 +17,12 @@ class TestOrderController(TestCase):
         self.date_now = datetime(2024, 7, 14, 0, 53, 35, 158494)
         self.create_order_dto = CreateOrderDTO(
             products=[ProductDTO(
-                sku="Mock_SKU_1",
+                sku=12345,
                 quantity=1
             )]
         )
         self.mock_order_item_entity = OrderItemEntity(
-            sku="Mock_SKU_1",
+            sku=12345,
             quantity=1
         )
 

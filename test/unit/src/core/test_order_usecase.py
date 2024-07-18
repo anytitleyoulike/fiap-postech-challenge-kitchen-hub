@@ -16,13 +16,13 @@ class TestOrderUseCase(unittest.TestCase):
         self.mock_order_repository = Mock()
         self.create_order_dto = CreateOrderDTO(
             products=[ProductDTO(
-                sku="Mock_SKU_1",
+                sku=12345,
                 quantity=1
             )]
         )
 
         self.mock_order_item_entity = OrderItemEntity(
-            sku="Mock_SKU_1",
+            sku=12345,
             quantity=1
         )
 
