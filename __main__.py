@@ -8,4 +8,3 @@ if __name__ == "__main__":
         port=8081,
         reload=True,
     )
-    print("Server started on port: 8081")

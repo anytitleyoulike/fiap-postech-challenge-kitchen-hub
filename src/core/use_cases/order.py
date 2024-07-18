@@ -45,7 +45,10 @@ class OrderUseCase:
     def list_all(
             order_repository: OrderRepositoryInterface,
     ) -> List[OrderDetailEntity]:
-        return order_repository.list_all()
+        try:
+            return order_repository.list_all()
+        except Exception as error:
+            print(error)
 
     @staticmethod
     def order_status_update(
